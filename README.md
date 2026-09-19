@@ -102,4 +102,4 @@ Event security, critical-perimeter and crowd-safety operators who work across cu
 
 ## Author
 
-Kamil Nagorski, Erynvorn Technologies. https://kamilnagorski.co.uk
+Kamil Nagorski, Erynvorn Technologies. https://erynvorntechnologies.com
