@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Training artifacts
+checkpoints/
+export/
+logs/
+*.gguf
+*.safetensors
+wandb/
+runs/
+
+# Data: keep the sample and docs, ignore real corpora
+data/*.jsonl
+!data/interpreter.sample.jsonl
+
+# Env / secrets
+.env
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# internal ops handoff, never publish
+HANDOFF_NO_SUDO.md

@@ -1,0 +1,41 @@
+# NORA Sentinel - v0 bootstrap run (pipeline proof, small + fast).
+# Purpose: validate the whole chain (train -> merge -> GGUF -> smoke test) cheaply.
+# For a real run, use train.example.yaml (3-4B, QLoRA) and a curated dataset.
+
+run_name: cultural-interpreter-v0
+
+model:
+  base: Qwen/Qwen2.5-0.5B-Instruct
+  trust_remote_code: false
+
+method:
+  type: lora            # 0.5B is small; no quantization needed, clean merge
+  compute_dtype: bfloat16
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+data:
+  train: data/interpreter.train.jsonl
+  eval: data/interpreter.eval.jsonl
+  format: chatml
+  max_seq_len: 1024
+
+train:
+  epochs: 3
+  per_device_batch_size: 2
+  grad_accum: 8
+  lr: 0.0002
+  warmup_ratio: 0.03
+  gradient_checkpointing: false   # 0.5B fits without it; avoids peft grad-hook setup
+  optim: paged_adamw_8bit
+  logging_steps: 5
+  eval_steps: 50
+  save_steps: 100
+  seed: 42
+
+output:
+  dir: checkpoints/cultural-interpreter-v0
+  merge_adapter: true
+  export_gguf: true

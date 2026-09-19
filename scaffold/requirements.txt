@@ -1,0 +1,12 @@
+# Install torch separately from the CUDA index (see setup_env.sh):
+#   uv pip install torch --index-url https://download.pytorch.org/whl/cu128
+# Then the rest from PyPI:
+transformers
+datasets
+accelerate
+peft
+trl
+bitsandbytes
+sentencepiece
+tensorboard
+pyyaml

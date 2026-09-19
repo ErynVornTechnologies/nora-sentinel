@@ -1,0 +1,49 @@
+# NORA Sentinel - training recipe (config as code)
+# One file per experiment. Change scale by changing values here, not code.
+# The same recipe runs on a single 12 GB GPU (dev) or a multi-GPU cluster (prod).
+
+run_name: cultural-interpreter-v0
+
+model:
+  # Start small. For the interpreter, prefer a stronger base than the edge workers use.
+  # Candidates to evaluate for Arabic-first work: Qwen (strong multilingual),
+  # plus Arabic-focused bases (verify current best before committing).
+  base: Qwen/Qwen2.5-3B-Instruct
+  trust_remote_code: false
+
+method:
+  type: qlora            # qlora | lora | full
+  quant: nf4             # bitsandbytes 4-bit for QLoRA
+  double_quant: true
+  compute_dtype: bfloat16
+  lora_r: 32
+  lora_alpha: 64
+  lora_dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+data:
+  train: data/interpreter.train.jsonl
+  eval: data/interpreter.eval.jsonl
+  format: chatml         # system / user / assistant
+  max_seq_len: 2048
+
+train:
+  epochs: 3
+  per_device_batch_size: 1
+  grad_accum: 16
+  lr: 0.0002
+  warmup_ratio: 0.03
+  gradient_checkpointing: true
+  optim: paged_adamw_8bit
+  logging_steps: 10
+  eval_steps: 50
+  save_steps: 100
+  seed: 42
+
+output:
+  dir: checkpoints/cultural-interpreter-v0
+  merge_adapter: true    # produce a merged model for GGUF export
+  export_gguf: false     # set true once llama.cpp is built (needs cmake)
+
+# Scaling note: on one GPU this trains as-is. To go multi-GPU or multi-node,
+# launch through accelerate/deepspeed with the same config; nothing else changes.
